@@ -994,6 +994,19 @@ config TOUCHSCREEN_SILEAD_GSL3680
 
 	  To compile this driver as a module, Choose M here: the
 	  module will be called gsl1688_ts.
+
+config TOUCHSCREEN_SILEAD_CHUWI_HI8_PRO
+	bool "SILEAD touchscreen driver for Chuwi Hi8 Pro pq32g221709xxxx tablets"
+	depends on I2C
+	help
+	  Say Y here to build a backported version if the mainline version
+	  silead driver with hardcoded config values for the
+	  Chuwi Hi8 Pro pq32g221709xxxx tablet.
+
+	  You must also set
+	  CONFIG_EXTRA_FIRMWARE="silead/gsl3680-chuwi-hi8-pro.fw"
+	  for this to work.
+
 config EMITOUCH_HANVON
 	tristate "HANVON0806 elect_touchscreen"
 	depends on I2C
