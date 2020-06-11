@@ -55,6 +55,12 @@
 
 #define SILEAD_MAX_FINGERS	10
 
+/*
+ * Another HACK, this makes us generate events in the same way as the silead
+ * driver as shipped on X86 devs with Android 5.1, dunno why this is necessary.
+ */
+#define ANDROID5_STYLE_TOUCH_EVENTS 1
+
 /* HACK copied over from mainline to make mainline driver work */
 struct touchscreen_properties {
 	unsigned int min_x;
@@ -138,9 +144,19 @@ static int silead_ts_request_input_dev(struct silead_ts_data *data)
 		swap(data->input->absinfo[ABS_MT_POSITION_X],
 		     data->input->absinfo[ABS_MT_POSITION_Y]);
 
+#if ANDROID5_STYLE_TOUCH_EVENTS
+	__set_bit(EV_ABS, data->input->evbit);
+	__set_bit(EV_KEY, data->input->evbit);
+	__set_bit(EV_REP, data->input->evbit);
+	__set_bit(INPUT_PROP_DIRECT, data->input->propbit);
+	input_mt_init_slots(data->input, data->max_fingers, 0);
+	input_set_abs_params(data->input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
+	input_set_abs_params(data->input, ABS_MT_WIDTH_MAJOR, 0, 200, 0, 0);
+#else
 	input_mt_init_slots(data->input, data->max_fingers,
 			    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED |
 			    INPUT_MT_TRACK);
+#endif
 
 	input_set_capability(data->input, EV_KEY, KEY_LEFTMETA);
 
@@ -209,19 +225,37 @@ static void silead_ts_read_data(struct i2c_client *client)
 		touch_nr++;
 	}
 
+#if !ANDROID5_STYLE_TOUCH_EVENTS
 	input_mt_assign_slots(input, data->slots, data->pos, touch_nr);
+#endif
 
 	for (i = 0; i < touch_nr; i++) {
+#if ANDROID5_STYLE_TOUCH_EVENTS
+		input_mt_slot(input, i);
+		input_report_abs(input, ABS_MT_TRACKING_ID, i);
+		input_report_abs(input, ABS_MT_TOUCH_MAJOR, 10);
+		input_report_abs(input, ABS_MT_POSITION_X, data->pos[i].x);
+		input_report_abs(input, ABS_MT_POSITION_Y, data->pos[i].y);
+		input_report_abs(input, ABS_MT_WIDTH_MAJOR, 1);
+#else
 		input_mt_slot(input, data->slots[i]);
 		input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
 		input_report_abs(input, ABS_MT_POSITION_X, data->pos[i].x);
 		input_report_abs(input, ABS_MT_POSITION_Y, data->pos[i].y);
+#endif
 
 		dev_dbg(dev, "x=%d y=%d hw_id=%d sw_id=%d\n", data->pos[i].x,
 			data->pos[i].y, data->id[i], data->slots[i]);
 	}
 
+#if ANDROID5_STYLE_TOUCH_EVENTS
+	for (i = touch_nr; i < data->max_fingers; i++) {
+		input_mt_slot(input, i);
+		input_report_abs(input, ABS_MT_TRACKING_ID, -1);
+	}
+#else
 	input_mt_sync_frame(input);
+#endif
 	input_report_key(input, KEY_LEFTMETA, softbutton_pressed);
 	input_sync(input);
 }
