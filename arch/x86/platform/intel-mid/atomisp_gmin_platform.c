@@ -160,7 +160,7 @@ enum {
 } I2C_BUS_NR;
 
 /* Not used yet */
-static struct i2c_board_info board_info[3];
+//static struct i2c_board_info board_info[3];
 
 struct atomisp_camera_cht_table {
 	const char   *acpi_match_name;
@@ -675,22 +675,27 @@ static struct gmin_subdev *gmin_subdev_add(struct v4l2_subdev *subdev)
 	 * 4 -> CLK4_PLT_CAM1_19P2MHz(rear)
 	 * 2 -> CLK2_PLT_CAM2_19P2MHz(front)
 	 */
-	gmin_subdevs[i].clock_num        = gmin_get_var_int(dev, "CamClk",
-			2, dev->driver->name);
+	if (strcmp(dev_name(dev), "i2c-GCTI2355:01") == 0)
+		gmin_subdevs[i].clock_num        = 4;
+	else
+		gmin_subdevs[i].clock_num        = 4;
+
 	/* Clk Src:
 	 * 0 -> CLK_FREQ_TYPE_XTAL
 	 */
-	gmin_subdevs[i].clock_src        = gmin_get_var_int(dev, "ClkSrc",
-			0, dev->driver->name);
+	gmin_subdevs[i].clock_src        = 0;
+
 	/* CSI port:
 	 * 0 -> front;
 	 * 1 -> rear;
 	 */
-	gmin_subdevs[i].csi_port         = gmin_get_var_int(dev, "CsiPort",
-			1, dev->driver->name);
+	if (strcmp(dev_name(dev), "i2c-GCTI2355:01") == 0)
+		gmin_subdevs[i].csi_port         = 0;
+	else
+		gmin_subdevs[i].csi_port         = 1;
+
 	/* CSI Lanes: lane's number */
-	gmin_subdevs[i].csi_lanes        = gmin_get_var_int(dev, "CsiLanes",
-			2, dev->driver->name);
+	gmin_subdevs[i].csi_lanes        = 1;
 #else
 	if (!strcmp(dev->driver->acpi_match_table->id,
 				"INT3477")) {
@@ -797,7 +802,7 @@ static int gmin_gpio0_ctrl(struct v4l2_subdev *subdev, int on)
 
 	pr_err("gmin_gpio0_ctrl.\n");
 	if (gs && gs->gpio0) {
-		pr_err("gmin_gpio0_ctrl enter.\n");
+		pr_err("gmin_gpio0_ctrl set %d.\n", on);
 		gpiod_set_value(gs->gpio0, on);
 		return 0;
 	}
@@ -810,7 +815,7 @@ static int gmin_gpio1_ctrl(struct v4l2_subdev *subdev, int on)
 
 	pr_err("gmin_gpio1_ctrl.\n");
 	if (gs && gs->gpio1) {
-		pr_err("gmin_gpio1_ctrl enter.\n");
+		pr_err("gmin_gpio1_ctrl set %d.\n", on);
 		gpiod_set_value(gs->gpio1, on);
 		return 0;
 	}
@@ -866,32 +871,25 @@ static int axp_v1p8_on(struct gmin_subdev *gs)
 	 * only one I currently see that wants to set both 1.8v rails. */
 	usleep_range(110, 150);
 
-	/* DVDD of rear camera */
-	if (!strcmp(dev->driver->acpi_match_table->id,
-				"OVB2680")) {
-	#ifdef CONFIG_VIDEO_CAMERA_PLUG_AND_PLAY
-		if (!strcmp(dev->driver->name, "ov8858")) {
-	#endif
-			ret |= axp_regulator_set(gs->fldo2_sel_reg,
-					gs->fldo2_1p2v,
-					FLDO_CTRL_REG,
-					gs->fldo2_ctrl_shift,
-					true);
-	#ifdef CONFIG_VIDEO_CAMERA_PLUG_AND_PLAY
-		}
-	#endif
-	}
-
 	/* DVDD of front camera */
-	if (!strcmp(dev->driver->acpi_match_table->id,
-				"OVTI2680") ||
-			!strcmp(dev->driver->acpi_match_table->id,
-				"GCTI2355"))
+	if (strcmp(dev_name(dev), "i2c-GCTI2355:01") == 0) {
+		dev_info(dev, "Enabling front camera DVDD\n");
 		ret |= axp_regulator_set(gs->eldo1_sel_reg,
 				gs->eldo1_1p8v,
 				ELDO_CTRL_REG,
 				gs->eldo1_ctrl_shift,
 				true);
+	}
+
+	/* DVDD of rear camera */
+	if (strcmp(dev_name(dev), "i2c-GCT2355:00") == 0) {
+		dev_info(dev, "Enabling rear camera DVDD\n");
+		ret |= axp_regulator_set(gs->fldo2_sel_reg,
+				gs->fldo2_1p2v,
+				FLDO_CTRL_REG,
+				gs->fldo2_ctrl_shift,
+				true);
+	}
 
 	return ret;
 }
@@ -917,30 +915,21 @@ static int axp_v1p8_off(struct gmin_subdev *gs)
 			false);
 
 	/* DVDD of front camera */
-	if (!strcmp(dev->driver->acpi_match_table->id,
-				"OVTI2680") ||
-			!strcmp(dev->driver->acpi_match_table->id,
-				"GCTI2355"))
+	if (strcmp(dev_name(dev), "i2c-GCTI2355:01") == 0) {
 		ret |= axp_regulator_set(gs->eldo1_sel_reg,
 				gs->eldo1_1p8v,
 				ELDO_CTRL_REG,
 				gs->eldo1_ctrl_shift,
 				false);
+	}
 
 	/* DVDD of rear camera */
-	if (!strcmp(dev->driver->acpi_match_table->id,
-				"OVB2680")) {
-	#ifdef CONFIG_VIDEO_CAMERA_PLUG_AND_PLAY
-		if (!strcmp(dev->driver->name, "ov8858")) {
-	#endif
-			ret |= axp_regulator_set(gs->fldo2_sel_reg,
-					gs->fldo2_1p2v,
-					FLDO_CTRL_REG,
-					gs->fldo2_ctrl_shift,
-					true);
-	#ifdef CONFIG_VIDEO_CAMERA_PLUG_AND_PLAY
-		}
-	#endif
+	if (strcmp(dev_name(dev), "i2c-GCT2355:00") == 0) {
+		ret |= axp_regulator_set(gs->fldo2_sel_reg,
+				gs->fldo2_1p2v,
+				FLDO_CTRL_REG,
+				gs->fldo2_ctrl_shift,
+				true);
 	}
 
 	return ret;

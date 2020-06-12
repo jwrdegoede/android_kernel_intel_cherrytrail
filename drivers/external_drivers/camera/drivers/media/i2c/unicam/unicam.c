@@ -2651,8 +2651,15 @@ static int uni_probe(struct i2c_client *client,
 	if (!dev)
 		return -ENOMEM;
 
+#if 0
 	if (client->name &&
 			!strncmp(client->name, "front", 5))
+		uni_data = m_data_front;
+	else
+		uni_data = m_data;
+#endif
+
+	if (strcmp(dev_name(&client->dev), "i2c-GCTI2355:01") == 0)
 		uni_data = m_data_front;
 	else
 		uni_data = m_data;
@@ -2769,6 +2776,7 @@ static struct acpi_device_id unicam_acpi_match[] = {
 	{"INT5648"},
 	{"INT5040"},
 
+	{"GCT2355"},
 	{"GCTI2355"},
 	{},
 };

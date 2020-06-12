@@ -28,7 +28,7 @@ static struct match_data m_data[]={
 //	{"ar0543",&ar0543_unidev},//aptina ar0543 5M
 //	{"hm8131",&hm8131_unidev},//himax hm8131 8M
 //	{"ov8865",&ov8865_unidev},//ov8865 8M
-	{"ov5648",&ov5648_unidev},//ov ov5648 5M
+	{"gc2355b",&gc2355b_unidev},//ov ov5648 5M
 //	{"hm5040",&hm5040_unidev},//himax hm5040 5M
 	{},
 };
