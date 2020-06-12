@@ -82,7 +82,10 @@ int vlv2_plat_set_clock_freq(int clk_num, int freq_type)
 		return -EINVAL;
 	}
 
+
 	addr = pmc_base + PLT_CLK_CTL_OFFSET(clk_num);
+
+	pr_info("platclock setting clock %d source to %d previous reg value 0x%08x\n", clk_num, freq_type, readl(addr));
 
 	mutex_lock(&clk_mutex);
 	writel(REG_SET_FIELD(readl(addr), CLK_FREQ_TYPE, freq_type), addr);
@@ -151,6 +154,9 @@ int vlv2_plat_configure_clock(int clk_num, u32 conf)
 
 	addr = pmc_base + PLT_CLK_CTL_OFFSET(clk_num);
 
+	pr_info("platclock turning clock %d %s previous reg value 0x%08x\n", clk_num,
+		(conf >= 2) ? "off" : "on", readl(addr));
+
 	mutex_lock(&clk_mutex);
 	writel(REG_SET_FIELD(readl(addr), CLK_CONFG, conf), addr);
 	mutex_unlock(&clk_mutex);
@@ -200,6 +206,8 @@ static int vlv2_plat_clk_probe(struct platform_device *pdev)
 	for (i = 0; i < MAX_CLK_COUNT; i++)
 		//vlv2_plat_configure_clock(i, CLK_CONFG_FORCE_OFF);
 	{
+		dev_info(&pdev->dev, "platclock %d initial reg value 0x%08x, turning off\n",
+			 i, readl(pmc_base + PLT_CLK_CTL_OFFSET(i)));
 		if(3 == i)
 			continue;
 		else
@@ -223,7 +231,7 @@ static const struct platform_device_id vlv2_plat_clk_id[] = {
 };
 MODULE_DEVICE_TABLE(platform, vlv2_plat_clk_id);
 
-static int vlv2_resume(struct platform_device *device)
+static int vlv2_resume(struct device *device)
 {
 	int i;
 
@@ -231,6 +239,8 @@ static int vlv2_resume(struct platform_device *device)
 	for (i = 0; i < MAX_CLK_COUNT; i++)
 //		vlv2_plat_configure_clock(i, CLK_CONFG_FORCE_OFF);
 	{
+		dev_info(device, "platclock %d resume reg value 0x%08x, turning off\n",
+			 i, readl(pmc_base + PLT_CLK_CTL_OFFSET(i)));
 		if(3 == i)
 			continue;
 		else
@@ -240,7 +250,7 @@ static int vlv2_resume(struct platform_device *device)
 	return 0;
 }
 
-static int vlv2_suspend(struct platform_device *device)
+static int vlv2_suspend(struct device *device)
 {
 	return 0;
 }
