@@ -698,7 +698,7 @@ static int trigger_algo(struct power_supply *psy)
 	
 	bat_prop.algo_stat = algo_stat;
 
-	pr_info("%s:Algo_status:%d\n", __func__, bat_prop.algo_stat);
+//	pr_info("%s:Algo_status:%d\n", __func__, bat_prop.algo_stat);
 
 	cache_bat_prop(&bat_prop, false);
 
