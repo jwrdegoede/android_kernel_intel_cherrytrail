@@ -1007,6 +1007,18 @@ config TOUCHSCREEN_SILEAD_CHUWI_HI8_PRO
 	  CONFIG_EXTRA_FIRMWARE="silead/gsl3680-chuwi-hi8-pro.fw"
 	  for this to work.
 
+config TOUCHSCREEN_SILEAD_CUBE_IWORK8AIR
+	bool "SILEAD touchscreen driver for Cube iWork8 Air i1TF32GB1629xxxx tablets"
+	depends on I2C
+	help
+	  Say Y here to build a backported version if the mainline version
+	  silead driver with hardcoded config values for the
+	  Cube iWork8 Air i1TF32GB1629xxxx tablet.
+
+	  You must also set
+	  CONFIG_EXTRA_FIRMWARE="silead/gsl3670-cube-iwork8-air.fw"
+	  for this to work.
+
 config EMITOUCH_HANVON
 	tristate "HANVON0806 elect_touchscreen"
 	depends on I2C

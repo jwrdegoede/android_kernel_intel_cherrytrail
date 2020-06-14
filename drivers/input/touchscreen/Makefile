@@ -83,6 +83,7 @@ obj-$(CONFIG_TOUCHSCREEN_FOCALTECH_FT5X06)	+= ft5x06_ts.o
 obj-$(CONFIG_TOUCHSCREEN_SILEAD_GSL1688)	+= gsl1688.o
 obj-$(CONFIG_TOUCHSCREEN_SILEAD_GSL3680)	+= gsl1688.o
 obj-$(CONFIG_TOUCHSCREEN_SILEAD_CHUWI_HI8_PRO)	+= silead_chuwi_hi8pro.o
+obj-$(CONFIG_TOUCHSCREEN_SILEAD_CUBE_IWORK8AIR)	+= silead_cube_iwork8air.o
 obj-$(CONFIG_EMITOUCH_HANVON)			+= hanvon_0868_i2c_w.o
 #obj-y += gsl_point_id.o
 #$(obj)/gsl_point_id.o: $(srctree)/$(obj)/gsl_point_id
