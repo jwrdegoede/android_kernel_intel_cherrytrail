@@ -151,4 +151,7 @@ source "drivers/staging/pn544/Kconfig"
 source "drivers/staging/modem_control/Kconfig"
 
 source "drivers/staging/fdp/Kconfig"
+
+source "drivers/staging/rtl8723bs/Kconfig"
+
 endif # STAGING
