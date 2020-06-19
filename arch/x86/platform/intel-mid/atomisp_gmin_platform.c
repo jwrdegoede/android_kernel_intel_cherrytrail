@@ -675,8 +675,8 @@ static struct gmin_subdev *gmin_subdev_add(struct v4l2_subdev *subdev)
 	 * 4 -> CLK4_PLT_CAM1_19P2MHz(rear)
 	 * 2 -> CLK2_PLT_CAM2_19P2MHz(front)
 	 */
-	if (strcmp(dev_name(dev), "i2c-GCTI2355:01") == 0)
-		gmin_subdevs[i].clock_num        = 4;
+	if (strcmp(dev_name(dev), "i2c-OVTI2680:01") == 0)
+		gmin_subdevs[i].clock_num        = 2;
 	else
 		gmin_subdevs[i].clock_num        = 4;
 
@@ -689,7 +689,8 @@ static struct gmin_subdev *gmin_subdev_add(struct v4l2_subdev *subdev)
 	 * 0 -> front;
 	 * 1 -> rear;
 	 */
-	if (strcmp(dev_name(dev), "i2c-GCTI2355:01") == 0)
+	if (strcmp(dev_name(dev), "i2c-GCTI2355:01") == 0 ||
+	    strcmp(dev_name(dev), "i2c-OVTI2680:01") == 0)
 		gmin_subdevs[i].csi_port         = 0;
 	else
 		gmin_subdevs[i].csi_port         = 1;
@@ -872,7 +873,8 @@ static int axp_v1p8_on(struct gmin_subdev *gs)
 	usleep_range(110, 150);
 
 	/* DVDD of front camera */
-	if (strcmp(dev_name(dev), "i2c-GCTI2355:01") == 0) {
+	if (strcmp(dev_name(dev), "i2c-GCTI2355:01") == 0 ||
+	    strcmp(dev_name(dev), "i2c-OVTI2680:01") == 0) {
 		dev_info(dev, "Enabling front camera DVDD\n");
 		ret |= axp_regulator_set(gs->eldo1_sel_reg,
 				gs->eldo1_1p8v,
@@ -882,7 +884,8 @@ static int axp_v1p8_on(struct gmin_subdev *gs)
 	}
 
 	/* DVDD of rear camera */
-	if (strcmp(dev_name(dev), "i2c-GCT2355:00") == 0) {
+	if (strcmp(dev_name(dev), "i2c-GCT2355:00") == 0 ||
+	    strcmp(dev_name(dev), "i2c-OVB2680:00") == 0) {
 		dev_info(dev, "Enabling rear camera DVDD\n");
 		ret |= axp_regulator_set(gs->fldo2_sel_reg,
 				gs->fldo2_1p2v,
@@ -915,7 +918,8 @@ static int axp_v1p8_off(struct gmin_subdev *gs)
 			false);
 
 	/* DVDD of front camera */
-	if (strcmp(dev_name(dev), "i2c-GCTI2355:01") == 0) {
+	if (strcmp(dev_name(dev), "i2c-GCTI2355:01") == 0 ||
+	    strcmp(dev_name(dev), "i2c-OVTI2680:01") == 0) {
 		ret |= axp_regulator_set(gs->eldo1_sel_reg,
 				gs->eldo1_1p8v,
 				ELDO_CTRL_REG,
@@ -924,7 +928,8 @@ static int axp_v1p8_off(struct gmin_subdev *gs)
 	}
 
 	/* DVDD of rear camera */
-	if (strcmp(dev_name(dev), "i2c-GCT2355:00") == 0) {
+	if (strcmp(dev_name(dev), "i2c-GCT2355:00") == 0 ||
+	    strcmp(dev_name(dev), "i2c-OVB2680:00") == 0) {
 		ret |= axp_regulator_set(gs->fldo2_sel_reg,
 				gs->fldo2_1p2v,
 				FLDO_CTRL_REG,
