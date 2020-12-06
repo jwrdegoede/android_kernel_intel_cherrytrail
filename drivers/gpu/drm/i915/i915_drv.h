@@ -696,9 +696,7 @@ struct intel_context {
 		struct drm_i915_gem_object *state;
 		struct intel_ringbuffer *ringbuf;
 		int unpin_count;
-#ifdef CONFIG_DRM_I915_SYNC
 		struct i915_sync_timeline *sync_timeline;
-#endif
 	} engine[I915_NUM_RINGS];
 
 	struct list_head link;
@@ -2200,10 +2198,8 @@ struct drm_i915_gem_request {
 
 	struct i915_scheduler_queue_entry	*scheduler_qe;
 
-#ifdef CONFIG_DRM_I915_SYNC
 	/** native sync timeline value **/
 	uint32_t sync_value;
-#endif
 
 	uint32_t uniq;
 };

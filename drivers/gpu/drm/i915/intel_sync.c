@@ -33,6 +33,8 @@
 #include "intel_drv.h"
 #include "intel_sync.h"
 
+#ifdef CONFIG_DRM_I915_SYNC
+
 static int i915_sync_pt_has_signaled(struct sync_pt *sync_pt)
 {
 	struct i915_sync_pt *pt = container_of(sync_pt,
@@ -348,6 +350,7 @@ void i915_sync_hung_ring(struct intel_engine_cs *ring)
 
 	i915_sync_hung_request(req);
 }
+#endif
 
 bool i915_safe_to_ignore_fence(struct intel_engine_cs *ring, struct sync_fence *fence)
 {

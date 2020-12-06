@@ -1724,6 +1724,7 @@ i915_gem_do_execbuffer(struct drm_device *dev, void *data,
 	params->args_DR1                = args->DR1;
 	params->args_DR4                = args->DR4;
 	params->batch_obj               = batch_obj;
+	params->fence_wait		= NULL;
 
 	/* Use the out-of-memory priority value as a suitable starting point for
 	 * the buffer priority. It seems to be zero for application level tasks
@@ -1834,8 +1835,10 @@ err:
 			i915_gem_context_unreference(params->ctx);
 	}
 
+#ifdef CONFIG_SYNC
 	if (params->fence_wait)
 		sync_fence_put(params->fence_wait);
+#endif
 
 	/* Free the OLR again in case the failure occurred after it had been
 	 * allocated. */

@@ -98,7 +98,8 @@ void i915_sync_timeline_destroy(struct intel_context *ctx,
 
 }
 
-static int i915_sync_create_fence(struct drm_i915_gem_request *req,
+static inline
+int i915_sync_create_fence(struct drm_i915_gem_request *req,
 				  int *fd_out, u64 ring_mask)
 {
 	return 0;
@@ -116,6 +117,11 @@ static inline
 void i915_sync_hung_ring(struct intel_engine_cs *ring)
 {
 
+}
+
+static inline
+void i915_sync_hung_request(struct drm_i915_gem_request *req)
+{
 }
 
 #endif /* CONFIG_DRM_I915_SYNC */
